@@ -3,18 +3,11 @@ from ursina.prefabs.first_person_controller import FirstPersonController
 
 app = Ursina()
 
-# for x in range(20):
-#     for z in range(20):
-#         Entity(model='cube', texture="white_cube", position = Vec3(x,0,z))
 
 player = FirstPersonController()
 player.gravity = 0.0
 
 grass_texture = load_texture('grass_block_texture.png')
-
-# for x_dynamic in range(20):
-#     for z_dynamic in range(20):
-#         Entity(model='cube', scale=0.5, texture=grass_texture, position=Vec3(x_dynamic,0,z_dynamic))
 
 
 arm_texture = load_texture('for_minecraft/assets/arm_texture.png')
@@ -35,15 +28,90 @@ class Block(Button):
                          model='block',
                          scale=0.5,
                          origin_y=0.5,
-                         texture=grass_texture,
+                         texture='wood_block.png',
                          color=color.white,
                          highlight_color=color.lime
                          )
 
 
-for x in range(50):
-    for z in range(50):
-        Block(position=(x, 0, z))
+class Grass(Block):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(position)
+        self.texture='wood_block.png'
+
+class Wood(Block):
+    def __init__(self,position=(0,0,0)):
+        super().__init__(position)
+        self.texture='grass_block_texture.png'
+
+
+"""Создание инвентаря со шкалой здоровья"""
+
+current_block = 1
+health = 100
+max_health = 100
+helth_bar = Entity(
+    parent=camera.ui,
+    model='quad',
+    color=color.red,
+    scale=(0.5,0.05),
+    position=(-0.3,0.45)
+)
+
+health_bar_border = Entity(
+    parent=camera.ui,
+    model='quad',
+    color=color.red,
+    scale=(0.52,0.07),
+    position=(-0.3,0.45)
+)
+
+def decrease_health(amount):
+    global health
+    health -= amount
+    health = max(0, health)
+    update_health_bar()
+
+def update_health_bar():
+    helth_bar.scale_x = (health/max_health)*0.3
+
+def update_inventory_highlight():
+    for i, button in enumerate(inventory, start=1):
+        if i == current_block:
+            button.color = color.azure
+        else:
+            button.color = color.white
+def create_inventory():
+    inventory_buttons = []
+    block_textures = ['grass_block_icon.png', 'wood_block_icon.png']
+
+    for i, texture in enumerate(block_textures, start=1):
+        button = Button(
+            parent=camera.ui,
+            rotate=0.4,
+            model='block',
+            texture=texture,
+            scale=(0.05,0.05),
+            position=(-0.3+i*0.12, -0.45),
+            tooltip=Tooltip(f'Block {1}')
+        )
+        inventory_buttons.append(button)
+
+    return  inventory_buttons
+
+inventory = create_inventory()
+update_inventory_highlight()
+
+
+
+
+
+
+
+
+for x in range(16):
+    for z in range(16):
+        Block(position=(x,0,z))
 
 camera.fov = 90
 
@@ -148,6 +216,18 @@ def input(key):
             hit_position = mouse.hovered_entity.position
             new_block_position = hit_position + mouse.normal
             Block(position=new_block_position)
+
+    global current_block, health
+    if key in ['1','2']:
+        current_block = int(key)
+        print(f'Выбран блок: {current_block}')
+        update_inventory_highlight()
+
+
+    if key == 'h':
+        decrease_health(10)
+
+
 
 
 # Меню паузы
