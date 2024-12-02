@@ -20,8 +20,8 @@ pZ = subject.z
 scene.fog_density = (0, 95)
 scene.fog_color = color.gray
 
-Audio('assets/C418_Subwoofer_Lullaby.mp3', True)
-grass_audio = Audio('assets/step.ogg',autoplay=False,loop=False)
+Audio('../C418_Subwoofer_Lullaby.mp3', True)
+grass_audio = Audio('../step.ogg', autoplay=False, loop=False)
 water_swim = Audio('assets/water-swim.mp3',autoplay=False,loop=False)
 
 arm_texture = load_texture('assets/arm_texture.png')

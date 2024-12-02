@@ -1,7 +1,9 @@
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
+from numpy import *
 
 app = Ursina()
+background_music = Audio('C418_Subwoofer_Lullaby.mp3', loop=True,autoplay=True, volume=40)
 
 
 player = FirstPersonController()
@@ -28,25 +30,29 @@ class Block(Button):
                          model='block',
                          scale=0.5,
                          origin_y=0.5,
-                         texture='wood_block.png',
+                         texture='grass_block_texture',
                          color=color.white,
                          highlight_color=color.lime
                          )
 
+for x in range(20):
+    for z in range(20):
+        Block(position=(x,0,z))
 
 class Grass(Block):
     def __init__(self, position=(0,0,0)):
         super().__init__(position)
-        self.texture='wood_block.png'
+        self.texture='grass_block_texture.png'
 
 class Wood(Block):
     def __init__(self,position=(0,0,0)):
         super().__init__(position)
-        self.texture='grass_block_texture.png'
+        self.texture='wood_block_texture.png'
+        self.model='block123'
+
 
 
 """Создание инвентаря со шкалой здоровья"""
-
 current_block = 1
 health = 100
 max_health = 100
@@ -54,15 +60,15 @@ helth_bar = Entity(
     parent=camera.ui,
     model='quad',
     color=color.red,
-    scale=(0.5,0.05),
+    scale=(0.05,0.05),
     position=(-0.3,0.45)
 )
 
 health_bar_border = Entity(
     parent=camera.ui,
-    model='quad',
+    model='',
     color=color.red,
-    scale=(0.52,0.07),
+    scale=(0.1,0.07),
     position=(-0.3,0.45)
 )
 
@@ -81,37 +87,37 @@ def update_inventory_highlight():
             button.color = color.azure
         else:
             button.color = color.white
+
+hotbar_texture = 'hotbar.png'
+hotbar = Entity(
+    model='quad',
+    texture=hotbar_texture,
+    color=color.dark_gray,
+    scale=(1.45, 0.8),
+    position=(0, -0.15),
+    parent=camera.ui
+)
+
+
 def create_inventory():
     inventory_buttons = []
     block_textures = ['grass_block_icon.png', 'wood_block_icon.png']
-
     for i, texture in enumerate(block_textures, start=1):
         button = Button(
             parent=camera.ui,
-            rotate=0.4,
+            rotate=(0, 0, 10),
             model='block',
             texture=texture,
-            scale=(0.05,0.05),
-            position=(-0.3+i*0.12, -0.45),
+            scale=(0.02,0.02),
+            position=(-0.2875+i*0.06, -0.44),
             tooltip=Tooltip(f'Block {1}')
         )
         inventory_buttons.append(button)
 
-    return  inventory_buttons
+    return inventory_buttons
 
 inventory = create_inventory()
 update_inventory_highlight()
-
-
-
-
-
-
-
-
-for x in range(16):
-    for z in range(16):
-        Block(position=(x,0,z))
 
 camera.fov = 90
 
@@ -157,6 +163,7 @@ def update():
         player.gravity = 9.81
 
 
+
 # Функции паузы
 def pause_game():
     pause_menu.enabled = True
@@ -194,6 +201,7 @@ def back_to_pause_menu():
 
 
 # Обработка нажатий клавиш
+
 def input(key):
     if key == 'escape':
         if settings_menu.enabled:
@@ -206,28 +214,31 @@ def input(key):
     if key == 'o':
         exit()
 
-    if key == 'left mouse down':
-        hit_info = mouse.hovered_entity
-        if hit_info:
-            destroy(hit_info)
-
-    if key == 'right mouse down':
-        if mouse.hovered_entity:
-            hit_position = mouse.hovered_entity.position
-            new_block_position = hit_position + mouse.normal
-            Block(position=new_block_position)
-
     global current_block, health
     if key in ['1','2']:
         current_block = int(key)
         print(f'Выбран блок: {current_block}')
         update_inventory_highlight()
 
+    if key == 'left mouse down':
+        hit_info = mouse.hovered_entity
+        if hit_info and (pause_menu.enabled!=True) and (settings_menu.enabled!=True):
+            destroy(hit_info)
+
+    if key == 'right mouse down':
+        if current_block == 2:
+            if mouse.hovered_entity:
+                hit_position = mouse.hovered_entity.position
+                new_block_position = hit_position + mouse.normal
+                Wood(position=new_block_position)
+        if current_block == 1:
+            if mouse.hovered_entity:
+                hit_position = mouse.hovered_entity.position
+                new_block_position = hit_position + mouse.normal
+                Grass(position=new_block_position)
 
     if key == 'h':
         decrease_health(10)
-
-
 
 
 # Меню паузы
@@ -285,7 +296,8 @@ settings_menu = WindowPanel(
     ),
     enabled=False,
     parent=camera.ui,
-    draggable=False
+    draggable=False,
+    position=(0,0.125,0)
 )
 
 
@@ -298,30 +310,12 @@ def update_temp_settings():
     temp_flight_mode = flight_mode_checkbox.value
 
 
+
 # Привязываем обновление настроек
 mouse_sensitivity_slider.on_value_changed = update_temp_settings
 fov_slider.on_value_changed = update_temp_settings
 show_fps_checkbox.on_value_changed = update_temp_settings
 flight_mode_checkbox.on_value_changed = update_temp_settings
-
-# class Voxel(Button):
-#     def __init__(self,position=(0,0,0), texture=grass_texture):
-#         super().__init__(parent=scene, model='assets/block', scale=0.5,
-#             texture=texture, position=position, origin_y=0.5, color=color.color(0,0,random.uniform(0.9,1)))
-#
-#         def input(self, key):
-#             if self.hovered:
-#                 if key == 'right mouse down':
-#                     Voxel(position=self.position + mouse.normal, texture=texture)
-#
-#                 if key == 'left mouse down':
-#                     destroy(self)
-# for x_dynamic in range(16):
-#     for z_dynamic in range(16):
-#         Voxel(position=(x_dynamic,0,z_dynamic))
-
-
-# Entity(model='plane',scale=(100,1,100),texture='grass',textire_scale=(100,100), collider='box')
 
 
 app.run()
