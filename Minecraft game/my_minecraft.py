@@ -3,17 +3,21 @@ from ursina.prefabs.first_person_controller import FirstPersonController
 from numpy import *
 
 
+if __name__ == "__main__":
+    app = Ursina()
 
-app = Ursina()
-background_music = Audio('C418_Subwoofer_Lullaby.mp3', loop=True,autoplay=True, volume=40)
+class MockObject:
+    def __init__(self):
+        self.enabled = False
+        self.locked = True
 
-#window.fullscreen = True
+# Глобальные объекты
+background_music = Audio('C418_Subwoofer_Lullaby.mp3', loop=True, autoplay=True, volume=40)
 
 player = FirstPersonController()
 player.gravity = 0.0
 
 grass_texture = load_texture('grass_block_texture.png')
-
 
 arm_texture = load_texture('for_minecraft/assets/arm_texture.png')
 hand = Entity(parent=camera.ui, model='for_minecraft/assets/arm', texture=arm_texture, scale=0.2,
@@ -38,21 +42,26 @@ class Block(Button):
                          highlight_color=color.lime
                          )
 
-for x in range(16):
-    for z in range(16):
-        for y in range(3):
-            Block(position=(x,-y,z))
 
 class Grass(Block):
     def __init__(self, position=(0,0,0)):
         super().__init__(position)
         self.texture='grass_block_texture.png'
 
+
 class Wood(Block):
     def __init__(self,position=(0,0,0)):
         super().__init__(position)
         self.texture='wood_block_texture.png'
         self.model='wood_block'
+
+
+for x in range(16):
+    for z in range(16):
+        for y in range(3):
+            Block(position=(x, -y, z))
+
+
 
 
 current_block = 1
@@ -65,6 +74,7 @@ def update_inventory_highlight():
         else:
             button.color = color.white
 
+
 hotbar_texture = 'hotbar.png'
 hotbar = Entity(
     model='quad',
@@ -75,6 +85,7 @@ hotbar = Entity(
     parent=camera.ui
 )
 
+
 def create_inventory():
     inventory_buttons = []
     block_textures = ['grass_block_icon.png', 'wood_block_icon.png']
@@ -84,13 +95,14 @@ def create_inventory():
             rotate=(0, 0, 10),
             model='block',
             texture=texture,
-            scale=(0.02,0.02),
-            position=(-0.2875+i*0.06, -0.44),
-            tooltip=Tooltip(f'Block {1}')
+            scale=(0.02, 0.02),
+            position=(-0.2875 + i * 0.06, -0.44),
+            tooltip=Tooltip(f'Block {i}')
         )
         inventory_buttons.append(button)
 
     return inventory_buttons
+
 
 inventory = create_inventory()
 update_inventory_highlight()
@@ -99,11 +111,10 @@ camera.fov = 90
 
 temp_mouse_sensitivity = player.mouse_sensitivity.x
 temp_fov = camera.fov
-temp_show_fps = False
 temp_flight_mode = False
 
-
 flight_mode = False
+
 
 def update():
     global flight_mode
@@ -119,15 +130,17 @@ def update():
         player.gravity = 9.81
 
 
-def pause_game(pause_menu, mouse, player):
+def pause_game():
     pause_menu.enabled = True
     mouse.locked = False
     player.enabled = False
+
 
 def resume_game():
     pause_menu.enabled = False
     mouse.locked = True
     player.enabled = True
+
 
 def open_settings():
     global temp_mouse_sensitivity, temp_fov, temp_flight_mode
@@ -161,14 +174,14 @@ def input(key):
         exit()
 
     global current_block, health
-    if key in ['1','2']:
+    if key in ['1', '2']:
         current_block = int(key)
         print(f'Выбран блок: {current_block}')
         update_inventory_highlight()
 
     if key == 'left mouse down':
         hit_info = mouse.hovered_entity
-        if hit_info and (pause_menu.enabled!=True) and (settings_menu.enabled!=True):
+        if hit_info and (pause_menu.enabled != True) and (settings_menu.enabled != True):
             destroy(hit_info)
 
     if key == 'right mouse down':
@@ -230,8 +243,9 @@ settings_menu = WindowPanel(
     enabled=False,
     parent=camera.ui,
     draggable=False,
-    position=(0,0.125,0)
+    position=(0, 0.125, 0)
 )
+
 
 def update_temp_settings():
     global temp_mouse_sensitivity, temp_fov, temp_show_fps, temp_flight_mode
@@ -244,5 +258,5 @@ mouse_sensitivity_slider.on_value_changed = update_temp_settings
 fov_slider.on_value_changed = update_temp_settings
 flight_mode_checkbox.on_value_changed = update_temp_settings
 
-
-app.run()
+if __name__ == "__main__":
+    app.run()
