@@ -11,19 +11,16 @@ class MockObject:
         self.enabled = False
         self.locked = True
 
-# Глобальные объекты
 background_music = Audio('C418_Subwoofer_Lullaby.mp3', loop=True, autoplay=True, volume=40)
 
 player = FirstPersonController()
-player.gravity = 0.0
+player.collider = 'box'
 
-grass_texture = load_texture('grass_block_texture.png')
-
-arm_texture = load_texture('for_minecraft/assets/arm_texture.png')
-hand = Entity(parent=camera.ui, model='for_minecraft/assets/arm', texture=arm_texture, scale=0.2,
+arm_texture = load_texture('arm_texture.png')
+hand = Entity(parent=camera.ui, model='arm', texture=arm_texture, scale=0.2,
               rotation=Vec3(150, -10, 10), position=Vec2(0.5, -0.6))
 
-sky_texture = load_texture('for_minecraft/textures/skybox.jpg')
+sky_texture = load_texture('skybox.jpg')
 sky = Entity(model='sphere', texture=sky_texture, scale=1000, double_sided=True)
 
 player.mouse_sensitivity = Vec2(40, 40)
@@ -34,34 +31,56 @@ class Block(Button):
     def __init__(self, position=(0, 0, 0)):
         super().__init__(parent=scene,
                          position=position,
-                         model='block',
+                         model='real_block',
                          scale=0.5,
                          origin_y=0.5,
-                         texture='grass_block_texture',
+                         texture='grass.jpg',
                          color=color.white,
-                         highlight_color=color.lime
+                         highlight_color=color.lime,
+                         collider='box'
                          )
 
 
 class Grass(Block):
     def __init__(self, position=(0,0,0)):
         super().__init__(position)
-        self.texture='grass_block_texture.png'
+        self.texture='grass.jpg'
 
 
-class Wood(Block):
+class Wood_block(Block):
     def __init__(self,position=(0,0,0)):
         super().__init__(position)
-        self.texture='wood_block_texture.png'
-        self.model='wood_block'
+        self.texture='wood_block.jpg'
 
+class Gold(Block):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(position)
+        self.texture='gold_block.png'
+
+class Diamond(Block):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(position)
+        self.texture='diamond_block.png'
+
+class Lapis(Block):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(position)
+        self.texture='lapis_block.png'
+
+class Stone(Block):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(position)
+        self.texture='stone_block.jpg'
+
+class Wood(Block):
+    def __init__(self, position=(0,0,0)):
+        super().__init__(position)
+        self.texture='wood.jpg'
 
 for x in range(16):
     for z in range(16):
         for y in range(3):
             Block(position=(x, -y, z))
-
-
 
 
 current_block = 1
@@ -70,7 +89,7 @@ current_block = 1
 def update_inventory_highlight():
     for i, button in enumerate(inventory, start=1):
         if i == current_block:
-            button.color = color.azure
+            button.color = color.gray
         else:
             button.color = color.white
 
@@ -88,12 +107,12 @@ hotbar = Entity(
 
 def create_inventory():
     inventory_buttons = []
-    block_textures = ['grass_block_icon.png', 'wood_block_icon.png']
+    block_textures = ['grass.png', 'wood_block.jpg', 'diamond_block.png', 'gold_block.png', 'lapis_block.png', 'stone_block.jpg', 'wood.jpg']
     for i, texture in enumerate(block_textures, start=1):
         button = Button(
             parent=camera.ui,
             rotate=(0, 0, 10),
-            model='block',
+            model='real_block',
             texture=texture,
             scale=(0.02, 0.02),
             position=(-0.2875 + i * 0.06, -0.44),
@@ -111,23 +130,26 @@ camera.fov = 90
 
 temp_mouse_sensitivity = player.mouse_sensitivity.x
 temp_fov = camera.fov
-temp_flight_mode = False
-
+temp_volume = background_music.volume*100
 flight_mode = False
 
 
-def update():
-    global flight_mode
 
+def toggle_god_mode():
+    global flight_mode
+    flight_mode = not flight_mode
     if flight_mode:
         player.gravity = 0
+    else:
+        player.gravity = 9.81
+
+
+def update():
+    if flight_mode:
         if held_keys['space']:
             player.position += Vec3(0, time.dt * 10, 0)
         if held_keys['left shift']:
             player.position += Vec3(0, -time.dt * 10, 0)
-    else:
-        flight_mode = False
-        player.gravity = 9.81
 
 
 def pause_game():
@@ -143,20 +165,20 @@ def resume_game():
 
 
 def open_settings():
-    global temp_mouse_sensitivity, temp_fov, temp_flight_mode
+    global temp_mouse_sensitivity, temp_fov, temp_volume
     pause_menu.enabled = False
     settings_menu.enabled = True
     mouse_sensitivity_slider.value = temp_mouse_sensitivity
     fov_slider.value = temp_fov
-    flight_mode_checkbox.value = temp_flight_mode
+    volume_slider.value = temp_volume
+
 
 
 def back_to_pause_menu():
-    global temp_mouse_sensitivity, temp_fov, temp_flight_mode
-    global flight_mode
+    global temp_mouse_sensitivity, temp_fov, temp_volume
     player.mouse_sensitivity = Vec2(temp_mouse_sensitivity, temp_mouse_sensitivity)
     camera.fov = temp_fov
-    flight_mode = temp_flight_mode
+    background_music.volume = temp_volume/100
     settings_menu.enabled = False
     pause_menu.enabled = True
 
@@ -170,13 +192,15 @@ def input(key):
         else:
             pause_game()
 
+    if key == 'g':
+        toggle_god_mode()
+
     if key == 'o':
         exit()
 
-    global current_block, health
-    if key in ['1', '2']:
+    global current_block
+    if key in ['1', '2', '3', '4', '5', '6', '7']:
         current_block = int(key)
-        print(f'Выбран блок: {current_block}')
         update_inventory_highlight()
 
     if key == 'left mouse down':
@@ -185,11 +209,36 @@ def input(key):
             destroy(hit_info)
 
     if key == 'right mouse down':
-        if current_block == 2:
+        if current_block == 7:
             if mouse.hovered_entity:
                 hit_position = mouse.hovered_entity.position
                 new_block_position = hit_position + mouse.normal
                 Wood(position=new_block_position)
+        if current_block == 6:
+            if mouse.hovered_entity:
+                hit_position = mouse.hovered_entity.position
+                new_block_position = hit_position + mouse.normal
+                Stone(position=new_block_position)
+        if current_block == 5:
+            if mouse.hovered_entity:
+                hit_position = mouse.hovered_entity.position
+                new_block_position = hit_position + mouse.normal
+                Lapis(position=new_block_position)
+        if current_block == 4:
+            if mouse.hovered_entity:
+                hit_position = mouse.hovered_entity.position
+                new_block_position = hit_position + mouse.normal
+                Gold(position=new_block_position)
+        if current_block == 3:
+            if mouse.hovered_entity:
+                hit_position = mouse.hovered_entity.position
+                new_block_position = hit_position + mouse.normal
+                Diamond(position=new_block_position)
+        if current_block == 2:
+            if mouse.hovered_entity:
+                hit_position = mouse.hovered_entity.position
+                new_block_position = hit_position + mouse.normal
+                Wood_block(position=new_block_position)
         if current_block == 1:
             if mouse.hovered_entity:
                 hit_position = mouse.hovered_entity.position
@@ -224,10 +273,12 @@ fov_slider = Slider(
     dynamic=True
 )
 
-flight_mode_checkbox = CheckBox(
-    text='God Mode',
-    color=color.azure,
-    value=True
+volume_slider = Slider(
+    min=0,
+    max=100,
+    default=40,
+    text='Громкость Музыки',
+    dynamic=True
 )
 
 back_button = Button('Назад', color=color.azure, on_click=back_to_pause_menu)
@@ -237,7 +288,7 @@ settings_menu = WindowPanel(
     content=(
         mouse_sensitivity_slider,
         fov_slider,
-        flight_mode_checkbox,
+        volume_slider,
         back_button
     ),
     enabled=False,
@@ -248,15 +299,16 @@ settings_menu = WindowPanel(
 
 
 def update_temp_settings():
-    global temp_mouse_sensitivity, temp_fov, temp_show_fps, temp_flight_mode
+    global temp_mouse_sensitivity, temp_fov, temp_volume
     temp_mouse_sensitivity = mouse_sensitivity_slider.value
     temp_fov = fov_slider.value
-    temp_flight_mode = flight_mode_checkbox.value
+    temp_volume = volume_slider.value
 
 
 mouse_sensitivity_slider.on_value_changed = update_temp_settings
 fov_slider.on_value_changed = update_temp_settings
-flight_mode_checkbox.on_value_changed = update_temp_settings
+volume_slider.on_value_changed = update_temp_settings
+
 
 if __name__ == "__main__":
     app.run()

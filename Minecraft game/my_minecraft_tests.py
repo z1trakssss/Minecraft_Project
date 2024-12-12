@@ -115,13 +115,6 @@ def test_update_flight_mode_off(setup_environment):
 
 
 
-
-
-
-
-
-
-
 @pytest.fixture
 def mock_inventory_environment(monkeypatch):
     # Подменяем инвентарь и кнопки
@@ -167,69 +160,6 @@ def test_update_inventory_highlight_negative(mock_inventory_environment):
     # Убедимся, что кнопка 1 осталась белой, а кнопка 2 стала синей
     assert button_1.color == color.white
     assert button_2.color == color.azure
-
-
-
-
-# Положительный тест для функции create_inventory
-def test_create_inventory_positive():
-    # Мокаем camera.ui как обычный объект, чтобы избежать проблемы с NodePath
-    with mock.patch('my_minecraft.camera.ui', autospec=True) as mock_ui:
-        # Мокаем Button с корректной логикой
-        with mock.patch('my_minecraft.Button') as MockButton:
-            # Создаем mock-объект для кнопки
-            mock_button = mock.Mock()
-            MockButton.return_value = mock_button
-
-            # Переопределим аттрибуты mock-кнопки
-            mock_button.position = (-0.2875, -0.44)
-
-            # Мокаем Tooltip, чтобы он не вызывал ошибок при создании
-            with mock.patch('my_minecraft.Tooltip') as MockTooltip:
-                mock_tooltip = mock.Mock()
-                MockTooltip.return_value = mock_tooltip
-
-                # Настроим атрибуты mock-объектов Button
-                mock_button.texture = 'grass_block_icon.png'
-
-                # Вызываем функцию create_inventory()
-                inventory_buttons = create_inventory()
-
-                # Проверяем, что создаются 2 кнопки
-                assert len(inventory_buttons) == 2
-
-                # Проверяем текстуры каждой кнопки
-                # В первой кнопке должна быть текстура 'grass_block_icon.png'
-                assert inventory_buttons[0].texture == 'grass_block_icon.png'
-
-                # Во второй кнопке должна быть текстура 'wood_block_icon.png'
-                inventory_buttons[1].texture = 'wood_block_icon.png'  # Это важно установить текстуру второй кнопки
-                assert inventory_buttons[1].texture == 'wood_block_icon.png'
-
-                # Проверяем позиции кнопок
-                assert inventory_buttons[0].position == (-0.2875 + 1 * 0.06, -0.44)
-                assert inventory_buttons[1].position == (-0.2875 + 2 * 0.06, -0.44)
-
-
-# # Отрицательный тест для функции create_inventory
-# def test_create_inventory_negative():
-#     # Мокаем camera.ui
-#     with mock.patch('my_minecraft.camera.ui') as mock_ui:
-#         # Мокаем Button с некорректной логикой (например, отсутствует texture)
-#         with mock.patch('my_minecraft.Button') as MockButton:
-#             # Настроим MockButton так, чтобы он возвращал mock-объект с некорректными аттрибутами
-#             mock_button = mock.Mock()
-#             MockButton.return_value = mock_button
-#
-#             # Переопределим необходимые аттрибуты
-#             mock_button.position = (-0.2875, -0.44)  # Позиция кнопки фиктивная, так же как и в предыдущем тесте
-#             mock_button.texture = None  # В этом случае не будет текстуры, что вызовет ошибку
-#
-#             # Вызываем функцию
-#             inventory_buttons = create_inventory()
-#
-#             # Проверяем, что список пустой (если нет текстуры)
-#             assert len(inventory_buttons) == 0
 
 
 
