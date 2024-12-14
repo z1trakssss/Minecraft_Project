@@ -29,7 +29,7 @@ background_music = Audio('C418_Subwoofer_Lullaby.mp3', loop=True, autoplay=True,
 
 player = FirstPersonController()
 player.collider = 'box'
-spawn_position = Vec3(0,5,0)
+spawn_position = Vec3(0,7,0)
 player.position = spawn_position
 
 fall_threshold = -25
@@ -202,8 +202,8 @@ class Wood(Block):
         super().__init__(position)
         self.texture='wood.jpg'
 
-for x in range(25):
-    for z in range(25):
+for x in range(16):
+    for z in range(16):
         for y in range(2):
             Block(position=(x, -y, z))
 
