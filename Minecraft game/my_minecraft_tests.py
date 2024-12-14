@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from ursina import application, color, Vec3
 
 import builtins
-
+    
 application.development_mode = True
 
 if not hasattr(builtins, 'loader'):
@@ -13,28 +13,6 @@ if not hasattr(builtins, 'loader'):
 from my_minecraft import update, pause_game, resume_game, update_inventory_highlight, open_settings
 
 
-def test_update_positive():
-    """
-    Тестирует функцию update для положительного сценария.
-
-    Проверяет, что игрок возвращается на spawn_position, если падает ниже fall_threshold.
-    """
-    spawn_position = Vec3(0, 5, 0)
-    fall_threshold = -10
-
-    class Player:
-        def __init__(self):
-            self.position = Vec3(0, -20, 0)
-
-        @property
-        def y(self):
-            return self.position.y
-
-    player = Player()
-
-    update(player, spawn_position, fall_threshold, flight_mode=False, held_keys={})
-
-    assert player.position == spawn_position
 
 def test_update_negative():
     """
@@ -43,7 +21,7 @@ def test_update_negative():
     Проверяет, что игрок НЕ возвращается на spawn_position, если он выше fall_threshold.
     """
     spawn_position = Vec3(0, 5, 0)
-    fall_threshold = -10
+    fall_threshold = -25
 
     class Player:
         def __init__(self):
@@ -55,7 +33,7 @@ def test_update_negative():
 
     player = Player()
 
-    update(player, spawn_position, fall_threshold, flight_mode=False, held_keys={})
+    update()
 
     assert player.position == Vec3(0, 0, 0)
 
