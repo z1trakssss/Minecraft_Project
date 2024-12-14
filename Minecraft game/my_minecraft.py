@@ -7,7 +7,21 @@ if __name__ == "__main__":
     app = Ursina()
 
 class MockObject:
+    """
+    Простой класс, представляющий объект с атрибутами `enabled` и `locked`
+
+    Атрибуты:
+        enabled (bool): Определяет, включён ли объект. По умолчанию False
+        locked (bool): Определяет, заблокирован ли объект. По умолчанию True
+    """
     def __init__(self):
+        """
+        Инициализирует объект MockObject с предопределёнными значениями атрибутов
+
+        Атрибуты:
+            enabled (bool): Устанавливается в False
+            locked (bool): Устанавливается в True
+        """
         self.enabled = False
         self.locked = True
 
@@ -15,6 +29,11 @@ background_music = Audio('C418_Subwoofer_Lullaby.mp3', loop=True, autoplay=True,
 
 player = FirstPersonController()
 player.collider = 'box'
+spawn_position = Vec3(0,5,0)
+player.position = spawn_position
+
+fall_threshold = -25
+
 
 arm_texture = load_texture('arm_texture.png')
 hand = Entity(parent=camera.ui, model='arm', texture=arm_texture, scale=0.2,
@@ -29,31 +48,28 @@ mouse.locked = True
 
 class Block(Button):
     """
-    Создает блок в игровой сцене.
+    Класс для создания блока в сцене, наследуется от Button
 
-    :ivar parent: Родительский объект, установленный в `scene`.
-    :type parent: Entity
-    :ivar model: Модель блока. По умолчанию 'real_block'.
-    :type model: str
-    :ivar scale: Масштаб блока. По умолчанию 0.5.
-    :type scale: float
-    :ivar origin_y: Вертикальная точка отсчета блока. По умолчанию 0.5.
-    :type origin_y: float
-    :ivar texture: Текстура блока. По умолчанию 'grass.jpg'.
-    :type texture: str
-    :ivar color: Основной цвет блока. По умолчанию белый.
-    :type color: color
-    :ivar highlight_color: Цвет блока при выделении. По умолчанию лаймовый.
-    :type highlight_color: color
-    :ivar collider: Тип коллайдера блока. По умолчанию 'box'.
-    :type collider: str
+    Аргументы:
+        position (tuple, необязательно): Позиция блока в сцене, по умолчанию (0, 0, 0)
+
+    Атрибуты:
+        parent (Entity): Родительский объект, обычно это сцена
+        position (tuple): Позиция блока в сцене
+        model (str): Модель блока, по умолчанию 'real_block'
+        scale (float): Масштаб блока, по умолчанию 0.5
+        origin_y (float): Точка отсчёта по высоте, по умолчанию 0.5
+        texture (str): Текстура блока, по умолчанию 'grass.jpg'
+        color (Color): Цвет блока, по умолчанию белый
+        highlight_color (Color): Цвет блока при наведении, по умолчанию лаймовый
+        collider (str): Тип коллайдера, по умолчанию 'box'
     """
     def __init__(self, position=(0, 0, 0)):
         """
-        Инициализирует блок с заданными параметрами.
+        Инициализирует объект класса Block
 
-        :param position: Позиция блока в сцене. По умолчанию (0, 0, 0).
-        :type position: tuple
+        Аргументы:
+            position (tuple): Позиция блока в сцене, по умолчанию (0, 0, 0)
         """
         super().__init__(parent=scene,
                          position=position,
@@ -69,92 +85,120 @@ class Block(Button):
 
 class Grass(Block):
     """
-    Представляет блок травы, наследуемый от класса Block.
+    Представляет блок травы, наследуемый от класса Block
 
-    :param position: Позиция блока в игровом мире. По умолчанию (0, 0, 0).
-    :type position: tuple
-    :ivar texture: Текстура блока травы. Устанавливается как 'grass.jpg'.
-    :type texture: str
+    Атрибуты:
+        texture (str): Текстура блока травы, устанавливается как 'grass.jpg'
     """
     def __init__(self, position=(0,0,0)):
+        """
+        Инициализирует блок травы с заданной позицией
+
+        Аргументы:
+            position (tuple): Позиция блока в игровом мире, по умолчанию (0, 0, 0)
+        """
         super().__init__(position)
         self.texture='grass.jpg'
 
 class Wood_block(Block):
     """
-    Представляет блок деревянного куба, наследуемый от класса Block.
+    Представляет блок деревянного куба, наследуемый от класса Block
 
-    :param position: Позиция блока в игровом мире. По умолчанию (0, 0, 0).
-    :type position: tuple
-    :ivar texture: Текстура блока дерева. Устанавливается как 'wood_block.jpg'.
-    :type texture: str
+    Атрибуты:
+        texture (str): Текстура блока дерева, устанавливается как 'wood_block.jpg'
     """
     def __init__(self,position=(0,0,0)):
+        """
+        Инициализирует деревянный блок с заданной позицией
+
+        Аргументы:
+            position (tuple): Позиция блока в игровом мире, по умолчанию (0, 0, 0)
+        """
         super().__init__(position)
         self.texture='wood_block.jpg'
 
 class Gold(Block):
     """
-    Представляет блок золота, наследуемый от класса Block.
+    Представляет блок золота, наследуемый от класса Block
 
-    :param position: Позиция блока в игровом мире. По умолчанию (0, 0, 0).
-    :type position: tuple
-    :ivar texture: Текстура блока золота. Устанавливается как 'gold_block.png'.
-    :type texture: str
+    Атрибуты:
+        texture (str): Текстура блока золота, устанавливается как 'gold_block.png'
     """
     def __init__(self, position=(0,0,0)):
+        """
+        Инициализирует блок золота с заданной позицией
+
+        Аргументы:
+            position (tuple, необязательно): Позиция блока в игровом мире, по умолчанию (0, 0, 0)
+        """
         super().__init__(position)
         self.texture='gold_block.png'
 
 class Diamond(Block):
     """
-    Представляет блок алмаза, наследуемый от класса Block.
+    Представляет блок алмаза, наследуемый от класса Block
 
-    :param position: Позиция блока в игровом мире. По умолчанию (0, 0, 0).
-    :type position: tuple
-    :ivar texture: Текстура блока алмаза. Устанавливается как 'diamond_block.png'.
-    :type texture: str
+    Атрибуты:
+        texture (str): Текстура блока алмаза, устанавливается как 'diamond_block.png'
     """
     def __init__(self, position=(0,0,0)):
+        """
+        Инициализирует блок алмаза с заданной позицией
+
+        Аргументы:
+            position (tuple, необязательно): Позиция блока в игровом мире, по умолчанию (0, 0, 0)
+        """
         super().__init__(position)
         self.texture='diamond_block.png'
 
 class Lapis(Block):
     """
-    Представляет блок лазурита, наследуемый от класса Block.
+    Представляет блок лазурита, наследуемый от класса Block
 
-    :param position: Позиция блока в игровом мире. По умолчанию (0, 0, 0).
-    :type position: tuple
-    :ivar texture: Текстура блока лазурита. Устанавливается как 'lapis_block.png'.
-    :type texture: str
+    Атрибуты:
+        texture (str): Текстура блока лазурита, устанавливается как 'lapis_block.png'
     """
     def __init__(self, position=(0,0,0)):
+        """
+        Инициализирует блок лазурита с заданной позицией
+
+        Аргументы:
+            position (tuple, необязательно): Позиция блока в игровом мире, по умолчанию (0, 0, 0)
+        """
         super().__init__(position)
         self.texture='lapis_block.png'
 
 class Stone(Block):
     """
-    Представляет блок камня, наследуемый от класса Block.
+    Представляет блок камня, наследуемый от класса Block
 
-    :param position: Позиция блока в игровом мире. По умолчанию (0, 0, 0).
-    :type position: tuple
-    :ivar texture: Текстура блока камня. Устанавливается как 'stone_block.jpg'.
-    :type texture: str
+    Атрибуты:
+        texture (str): Текстура блока камня, устанавливается как 'stone_block.jpg'
     """
     def __init__(self, position=(0,0,0)):
+        """
+        Инициализирует блок камня с заданной позицией
+
+        Аргументы:
+            position (tuple, необязательно): Позиция блока в игровом мире, по умолчанию (0, 0, 0)
+        """
         super().__init__(position)
         self.texture='stone_block.jpg'
 
 class Wood(Block):
     """
-    Представляет блок дерева, наследуемый от класса Block.
+    Представляет блок дерева, наследуемый от класса Block
 
-    :param position: Позиция блока в игровом мире. По умолчанию (0, 0, 0).
-    :type position: tuple
-    :ivar texture: Текстура блока дерева. Устанавливается как 'wood.jpg'.
-    :type texture: str
+    Атрибуты:
+        texture (str): Текстура блока дерева, устанавливается как 'wood.jpg'
     """
     def __init__(self, position=(0,0,0)):
+        """
+        Инициализирует блок дерева с заданной позицией
+
+        Аргументы:
+            position (tuple, необязательно): Позиция блока в игровом мире, по умолчанию (0, 0, 0)
+        """
         super().__init__(position)
         self.texture='wood.jpg'
 
@@ -169,16 +213,17 @@ current_block = 1
 
 def update_inventory_highlight():
     """
-    Обновляет выделение текущего элемента в инвентаре.
+    Обновляет выделение текущего элемента в инвентаре
 
-    Функция проходит по всем кнопкам инвентаря и изменяет их цвет в зависимости
-    от того, соответствует ли номер элемента текущему выбранному блоку.
+    Функция проходит по всем кнопкам инвентаря и устанавливает их цвет
+    в зависимости от того, соответствует ли номер элемента текущему выбранному блоку
 
-    :ivar inventory: Список кнопок инвентаря, доступных для взаимодействия.
-    :type inventory: list[Button]
-    :ivar current_block: Номер текущего выбранного блока.
-    :type current_block: int
-    :return: None
+    Переменные:
+        inventory (list[Button]): Список кнопок инвентаря, доступных для взаимодействия
+        current_block (int): Номер текущего выбранного блока
+
+    Возвращает:
+        None
     """
     for i, button in enumerate(inventory, start=1):
         if i == current_block:
@@ -200,16 +245,17 @@ hotbar = Entity(
 
 def create_inventory():
     """
-    Создает кнопки инвентаря для отображения доступных блоков.
+    Создает кнопки инвентаря для отображения доступных блоков
 
     Функция генерирует список кнопок на основе заданных текстур блоков.
-    Каждая кнопка представляет определенный блок, отображаемый в пользовательском интерфейсе,
-    и имеет всплывающую подсказку с указанием номера блока.
+    Каждая кнопка соответствует определённому блоку, отображаемому в пользовательском интерфейсе,
+    и имеет всплывающую подсказку с номером блока
 
-    :ivar camera.ui: Пользовательский интерфейс камеры, к которому прикрепляются кнопки.
-    :type camera.ui: Entity
-    :return: Список созданных кнопок инвентаря.
-    :rtype: list[Button]
+    Переменные:
+        camera.ui (Entity): Пользовательский интерфейс камеры, к которому прикрепляются кнопки
+
+    Возвращает:
+        list[Button]: Список созданных кнопок инвентаря
     """
     inventory_buttons = []
     block_textures = ['grass.png', 'wood_block.jpg', 'diamond_block.png', 'gold_block.png', 'lapis_block.png', 'stone_block.jpg', 'wood.jpg']
@@ -243,17 +289,18 @@ flight_mode = False
 
 def toggle_god_mode():
     """
-    Переключает режим полета (God Mode) для игрока.
+    Переключает режим полёта (God Mode) для игрока
 
-    Функция изменяет состояние переменной `flight_mode`, включая или отключая режим полета.
-    В режиме полета отключается гравитация, позволяя игроку свободно перемещаться,
-    в противном случае гравитация возвращается к стандартному значению.
+    Функция изменяет состояние глобальной переменной `flight_mode`, включая или отключая режим полёта.
+    В режиме полёта отключается гравитация, позволяя игроку свободно перемещаться.
+    При выключении режима гравитация возвращается к стандартному значению (9.81)
 
-    :ivar flight_mode: Состояние режима полета. Если `True`, режим включен, иначе выключен.
-    :type flight_mode: bool
-    :ivar player.gravity: Параметр гравитации для игрока. Устанавливается в 0 при включении режима или 9.81 при выключении.
-    :type player.gravity: float
-    :return: None
+    Переменные:
+        flight_mode (bool): Состояние режима полёта. Если `True`, режим включен, иначе выключен
+        player.gravity (float): Гравитация для игрока. Устанавливается в 0 при включении режима или 9.81 при выключении
+
+    Возвращает:
+        None
     """
     global flight_mode
     flight_mode = not flight_mode
@@ -263,22 +310,27 @@ def toggle_god_mode():
         player.gravity = 9.81
 
 
-def update():
+def update(player, spawn_position, fall_threshold, flight_mode, held_keys):
     """
-    Обновляет состояние игрока в режиме полета.
+    Обновляет состояние игрока на каждом кадре
 
-    Функция проверяет, активирован ли режим полета (`flight_mode`), и обрабатывает управление игроком.
-    При удерживании клавиши `space` игрок поднимается вверх, а при удерживании `left shift` опускается вниз.
-    Скорость перемещения зависит от времени, прошедшего с последнего кадра (`time.dt`).
+    Функция проверяет, не упал ли игрок ниже заданной высоты (`fall_threshold`).
+    Если высота игрока ниже порогового значения, его позиция сбрасывается на позицию возрождения (`spawn_position`).
+    Также, если включен режим полёта (`flight_mode`), игрок может двигаться вверх и вниз, удерживая определённые клавиши
 
-    :ivar flight_mode: Состояние режима полета. Если `True`, управление высотой игрока активно.
-    :type flight_mode: bool
-    :ivar held_keys: Словарь текущих нажатых клавиш.
-    :type held_keys: dict
-    :ivar player.position: Позиция игрока в игровом пространстве.
-    :type player.position: Vec3
-    :return: None
+    Аргументы:
+        player: Игрок, чья позиция обновляется
+        spawn_position (Vec3): Позиция, на которую игрок возвращается после падения
+        fall_threshold (float): Высота, ниже которой игрок считается упавшим
+        flight_mode (bool): Флаг, активирующий режим полёта
+        held_keys (dict): Словарь текущих нажатых клавиш
+
+    Возвращает:
+        None
     """
+    if player.y < fall_threshold:
+        player.position = spawn_position
+
     if flight_mode:
         if held_keys['space']:
             player.position += Vec3(0, time.dt * 10, 0)
@@ -288,18 +340,18 @@ def update():
 
 def pause_game():
     """
-    Активирует меню паузы и приостанавливает управление игроком.
+    Активирует меню паузы и приостанавливает управление игроком
 
     Функция включает отображение меню паузы, разблокирует указатель мыши
-    и отключает управление игроком, чтобы обеспечить корректное взаимодействие с интерфейсом.
+    и отключает управление игроком, чтобы обеспечить взаимодействие с интерфейсом
 
-    :ivar pause_menu.enabled: Состояние меню паузы. Устанавливается в True для отображения меню.
-    :type pause_menu.enabled: bool
-    :ivar mouse.locked: Состояние блокировки указателя мыши. Устанавливается в False, чтобы разблокировать указатель.
-    :type mouse.locked: bool
-    :ivar player.enabled: Состояние игрока. Устанавливается в False, чтобы отключить управление.
-    :type player.enabled: bool
-    :return: None
+    Переменные:
+        pause_menu.enabled (bool): Состояние меню паузы. Устанавливается в True для отображения меню
+        mouse.locked (bool): Состояние блокировки указателя мыши. Устанавливается в False для разблокировки
+        player.enabled (bool): Состояние игрока. Устанавливается в False, чтобы отключить управление
+
+    Возвращает:
+        None
     """
     pause_menu.enabled = True
     mouse.locked = False
@@ -308,18 +360,18 @@ def pause_game():
 
 def resume_game():
     """
-    Возобновляет игру после паузы.
+    Возобновляет игру после паузы
 
     Функция отключает отображение меню паузы, блокирует указатель мыши
-    и включает управление игроком, возвращая его в активное состояние.
+    и включает управление игроком, возвращая его в активное состояние
 
-    :ivar pause_menu.enabled: Состояние меню паузы. Устанавливается в False, чтобы скрыть меню.
-    :type pause_menu.enabled: bool
-    :ivar mouse.locked: Состояние блокировки указателя мыши. Устанавливается в True, чтобы заблокировать указатель.
-    :type mouse.locked: bool
-    :ivar player.enabled: Состояние игрока. Устанавливается в True, чтобы включить управление.
-    :type player.enabled: bool
-    :return: None
+    Переменные:
+        pause_menu.enabled (bool): Состояние меню паузы. Устанавливается в False, чтобы скрыть меню
+        mouse.locked (bool): Состояние блокировки указателя мыши. Устанавливается в True для блокировки указателя
+        player.enabled (bool): Состояние игрока. Устанавливается в True для включения управления
+
+    Возвращает:
+        None
     """
     pause_menu.enabled = False
     mouse.locked = True
@@ -328,28 +380,24 @@ def resume_game():
 
 def open_settings():
     """
-    Открывает меню настроек игры.
+    Открывает меню настроек игры
 
-    Функция отключает меню паузы и включает меню настроек. Значения слайдеров для чувствительности мыши,
-    поля зрения (FOV) и громкости устанавливаются на временные значения, чтобы отразить текущие настройки игрока.
+    Функция отключает меню паузы и включает меню настроек. Устанавливает значения слайдеров
+    для чувствительности мыши, поля зрения (FOV) и громкости на временные значения,
+    чтобы отразить текущие настройки игрока
 
-    :ivar temp_mouse_sensitivity: Временное значение чувствительности мыши.
-    :type temp_mouse_sensitivity: float
-    :ivar temp_fov: Временное значение поля зрения камеры.
-    :type temp_fov: float
-    :ivar temp_volume: Временное значение громкости музыки.
-    :type temp_volume: float
-    :ivar pause_menu.enabled: Состояние меню паузы. Устанавливается в False, чтобы отключить меню.
-    :type pause_menu.enabled: bool
-    :ivar settings_menu.enabled: Состояние меню настроек. Устанавливается в True, чтобы включить меню.
-    :type settings_menu.enabled: bool
-    :ivar mouse_sensitivity_slider.value: Текущее значение слайдера чувствительности мыши.
-    :type mouse_sensitivity_slider.value: float
-    :ivar fov_slider.value: Текущее значение слайдера поля зрения.
-    :type fov_slider.value: float
-    :ivar volume_slider.value: Текущее значение слайдера громкости.
-    :type volume_slider.value: float
-    :return: None
+    Переменные:
+        temp_mouse_sensitivity (float): Временное значение чувствительности мыши
+        temp_fov (float): Временное значение поля зрения камеры
+        temp_volume (float): Временное значение громкости музыки
+        pause_menu.enabled (bool): Состояние меню паузы. Устанавливается в False для отключения меню
+        settings_menu.enabled (bool): Состояние меню настроек. Устанавливается в True для включения меню
+        mouse_sensitivity_slider.value (float): Значение слайдера чувствительности мыши
+        fov_slider.value (float): Значение слайдера поля зрения
+        volume_slider.value (float): Значение слайдера громкости
+
+    Возвращает:
+        None
     """
     global temp_mouse_sensitivity, temp_fov, temp_volume
     pause_menu.enabled = False
@@ -362,28 +410,23 @@ def open_settings():
 
 def back_to_pause_menu():
     """
-    Возвращает игрока в меню паузы из меню настроек.
+    Возвращает игрока в меню паузы из меню настроек
 
     Функция восстанавливает значения чувствительности мыши, поля зрения камеры и громкости музыки
-    из временных настроек. Отключает меню настроек и включает меню паузы.
+    из временных настроек. Отключает меню настроек и включает меню паузы
 
-    :ivar temp_mouse_sensitivity: Временное значение чувствительности мыши.
-    :type temp_mouse_sensitivity: float
-    :ivar temp_fov: Временное значение поля зрения камеры.
-    :type temp_fov: float
-    :ivar temp_volume: Временное значение громкости музыки.
-    :type temp_volume: float
-    :ivar player.mouse_sensitivity: Значение чувствительности мыши для управления игроком.
-    :type player.mouse_sensitivity: Vec2
-    :ivar camera.fov: Поле зрения камеры.
-    :type camera.fov: float
-    :ivar background_music.volume: Громкость фоновой музыки. Приводится к диапазону 0-1.
-    :type background_music.volume: float
-    :ivar settings_menu.enabled: Состояние меню настроек. Устанавливается в False, чтобы отключить его.
-    :type settings_menu.enabled: bool
-    :ivar pause_menu.enabled: Состояние меню паузы. Устанавливается в True, чтобы включить его.
-    :type pause_menu.enabled: bool
-    :return: None
+    Переменные:
+        temp_mouse_sensitivity (float): Временное значение чувствительности мыши
+        temp_fov (float): Временное значение поля зрения камеры
+        temp_volume (float): Временное значение громкости музыки
+        player.mouse_sensitivity (Vec2): Значение чувствительности мыши для управления игроком
+        camera.fov (float): Поле зрения камеры
+        background_music.volume (float): Громкость фоновой музыки в диапазоне от 0 до 1
+        settings_menu.enabled (bool): Состояние меню настроек. Устанавливается в False для отключения
+        pause_menu.enabled (bool): Состояние меню паузы. Устанавливается в True для включения
+
+    Возвращает:
+        None
     """
     global temp_mouse_sensitivity, temp_fov, temp_volume
     player.mouse_sensitivity = Vec2(temp_mouse_sensitivity, temp_mouse_sensitivity)
@@ -395,27 +438,26 @@ def back_to_pause_menu():
 
 def input(key):
     """
-    Обрабатывает ввод пользователя.
+    Обрабатывает ввод пользователя
 
     Функция выполняет действия в зависимости от нажатой клавиши, включая переключение меню,
-    активацию режима полета, выбор блока, разрушение или размещение блоков в игровом мире.
+    активацию режима полета, выбор блока, разрушение или размещение блоков в игровом мире
 
-    :param key: Нажатая клавиша или кнопка мыши.
-    :type key: str
+    Аргументы:
+        key (str): Нажатая клавиша или кнопка мыши
 
-    :ivar settings_menu.enabled: Состояние меню настроек. Используется для проверки активности меню.
-    :type settings_menu.enabled: bool
-    :ivar pause_menu.enabled: Состояние меню паузы. Используется для проверки активности меню.
-    :type pause_menu.enabled: bool
-    :ivar current_block: Номер текущего выбранного блока. Обновляется при выборе блока.
-    :type current_block: int
-    :ivar mouse.hovered_entity: Объект, на который указывает курсор мыши. Используется для разрушения или размещения блоков.
-    :type mouse.hovered_entity: Entity
-    :ivar mouse.normal: Нормаль поверхности объекта под курсором. Используется для определения позиции нового блока.
-    :type mouse.normal: Vec3
+    Переменные:
+        settings_menu.enabled (bool): Состояние меню настроек. Используется для проверки активности меню
+        pause_menu.enabled (bool): Состояние меню паузы. Используется для проверки активности меню
+        current_block (int): Номер текущего выбранного блока. Обновляется при выборе блока
+        mouse.hovered_entity (Entity): Объект, на который указывает курсор мыши, используется для разрушения или размещения блоков
+        mouse.normal (Vec3): Нормаль поверхности объекта под курсором, используется для определения позиции нового блока
 
-    :raises SystemExit: Если нажата клавиша 'o' для выхода из игры.
-    :return: None
+    Исключения:
+        SystemExit: Если нажата клавиша 'o' для выхода из игры
+
+    Возвращает:
+        None
     """
     if key == 'escape':
         if settings_menu.enabled:
@@ -533,25 +575,22 @@ settings_menu = WindowPanel(
 
 def update_temp_settings():
     """
-    Обновляет временные значения настроек игры.
+    Обновляет временные значения настроек игры
 
     Функция сохраняет текущие значения слайдеров чувствительности мыши, поля зрения камеры
     и громкости музыки во временные переменные. Эти значения используются для применения
-    настроек при возврате из меню.
+    настроек при возврате из меню
 
-    :ivar temp_mouse_sensitivity: Временное значение чувствительности мыши.
-    :type temp_mouse_sensitivity: float
-    :ivar temp_fov: Временное значение поля зрения камеры.
-    :type temp_fov: float
-    :ivar temp_volume: Временное значение громкости музыки.
-    :type temp_volume: float
-    :ivar mouse_sensitivity_slider.value: Текущее значение слайдера чувствительности мыши.
-    :type mouse_sensitivity_slider.value: float
-    :ivar fov_slider.value: Текущее значение слайдера поля зрения.
-    :type fov_slider.value: float
-    :ivar volume_slider.value: Текущее значение слайдера громкости.
-    :type volume_slider.value: float
-    :return: None
+    Переменные:
+        temp_mouse_sensitivity (float): Временное значение чувствительности мыши
+        temp_fov (float): Временное значение поля зрения камеры
+        temp_volume (float): Временное значение громкости музыки
+        mouse_sensitivity_slider.value (float): Текущее значение слайдера чувствительности мыши
+        fov_slider.value (float): Текущее значение слайдера поля зрения
+        volume_slider.value (float): Текущее значение слайдера громкости
+
+    Возвращает:
+        None
     """
     global temp_mouse_sensitivity, temp_fov, temp_volume
     temp_mouse_sensitivity = mouse_sensitivity_slider.value

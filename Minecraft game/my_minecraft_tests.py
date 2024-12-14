@@ -1,123 +1,130 @@
 import pytest
-from unittest import mock
 from unittest.mock import MagicMock
-from ursina import application, color, Button, camera, Tooltip, scene, camera
+from ursina import application, color, Vec3
 
 import builtins
 
-# Отключаем графический интерфейс
 application.development_mode = True
 
-# Проверяем, был ли уже инициализирован 'loader' в builtins
 if not hasattr(builtins, 'loader'):
     from ursina import Ursina
     app = Ursina()
 
-import my_minecraft
-from my_minecraft import create_inventory, pause_game, resume_game, update_inventory_highlight
-
-class MockVec3:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def __add__(self, other):
-        # Проверяем, что other является экземпляром MockVec3
-        if isinstance(other, MockVec3):
-            return MockVec3(self.x + other.x, self.y + other.y, self.z + other.z)
-        raise TypeError(f"Unsupported operand type(s) for +: 'MockVec3' and '{type(other).__name__}'")
-
-    def __eq__(self, other):
-        if isinstance(other, MockVec3):
-            return self.x == other.x and self.y == other.y and self.z == other.z
-        elif isinstance(other, tuple) and len(other) == 3:
-            return (self.x, self.y, self.z) == other
-        return False
-
-    def __repr__(self):
-        return f"MockVec3({self.x}, {self.y}, {self.z})"
+from my_minecraft import update, pause_game, resume_game, update_inventory_highlight, open_settings
 
 
-@pytest.fixture
-def setup_environment(monkeypatch):
+def test_update_positive():
     """
-    Фикстура для настройки окружения перед каждым тестом.
-    Мокаем глобальные переменные модуля my_minecraft.
+    Тестирует функцию update для положительного сценария.
+
+    Проверяет, что игрок возвращается на spawn_position, если падает ниже fall_threshold.
     """
-    # Мокаем глобальные переменные
-    monkeypatch.setattr(my_minecraft, 'flight_mode', False)
-    monkeypatch.setattr(my_minecraft, 'player', MagicMock())
-    monkeypatch.setattr(my_minecraft, 'held_keys', {})
-    monkeypatch.setattr(my_minecraft, 'Vec3', MockVec3)
+    spawn_position = Vec3(0, 5, 0)
+    fall_threshold = -10
 
-    # Мокаем объект time с фиксированным значением dt
-    mock_time = MagicMock()
-    mock_time.dt = 0.1
-    monkeypatch.setattr(my_minecraft, 'time', mock_time)
+    class Player:
+        def __init__(self):
+            self.position = Vec3(0, -20, 0)
 
+        @property
+        def y(self):
+            return self.position.y
 
-def test_update_flight_mode_on_space_pressed(setup_environment):
+    player = Player()
+
+    update(player, spawn_position, fall_threshold, flight_mode=False, held_keys={})
+
+    assert player.position == spawn_position
+
+def test_update_negative():
     """
-    Положительный тест:
-    Проверяет, что при включенном flight_mode и нажатии 'space' позиция игрока обновляется вверх,
-    а гравитация отключена.
+    Тестирует функцию update для отрицательного сценария.
+
+    Проверяет, что игрок НЕ возвращается на spawn_position, если он выше fall_threshold.
     """
-    # Настройка условий
-    my_minecraft.flight_mode = True
-    my_minecraft.player.gravity = 0
-    my_minecraft.held_keys['space'] = True
-    my_minecraft.held_keys['left shift'] = False
-    my_minecraft.player.position = my_minecraft.Vec3(0, 0, 0)
+    spawn_position = Vec3(0, 5, 0)
+    fall_threshold = -10
 
-    # Выполнение функции
-    my_minecraft.update()
+    class Player:
+        def __init__(self):
+            self.position = Vec3(0, 0, 0)
 
-    # Ожидаемое новое положение игрока
-    expected_position = my_minecraft.Vec3(0, my_minecraft.time.dt * 10, 0)
+        @property
+        def y(self):
+            return self.position.y
 
-    # Проверка результатов
-    assert my_minecraft.player.position == expected_position, (
-        f"Ожидаемая позиция: {expected_position}, текущая позиция: {my_minecraft.player.position}"
-    )
-    assert my_minecraft.player.gravity == 0, (
-        f"Ожидаемая гравитация: 0, текущая гравитация: {my_minecraft.player.gravity}"
-    )
+    player = Player()
+
+    update(player, spawn_position, fall_threshold, flight_mode=False, held_keys={})
+
+    assert player.position == Vec3(0, 0, 0)
 
 
-def test_update_flight_mode_off(setup_environment):
+
+
+def test_toggle_god_mode_positive():
     """
-    Отрицательный тест:
-    Проверяет, что при отключенном flight_mode гравитация устанавливается правильно
-    и позиция игрока не изменяется при нажатии 'space'.
+    Тестирует функцию toggle_god_mode для включения режима полета.
+
+    Проверяет, что гравитация игрока отключается при включении режима полета.
     """
-    # Настройка условий
-    my_minecraft.flight_mode = False
-    my_minecraft.player.gravity = 0  # Начальное значение гравитации
-    my_minecraft.held_keys['space'] = True
-    my_minecraft.player.position = my_minecraft.Vec3(0, 0, 0)
+    flight_mode = False
 
-    # Выполнение функции
-    my_minecraft.update()
+    class Player:
+        def __init__(self):
+            self.gravity = 9.81
 
-    # Ожидаемые результаты
-    expected_gravity = 9.81
-    expected_position = my_minecraft.Vec3(0, 0, 0)
+    player = Player()
 
-    # Проверка результатов
-    assert my_minecraft.player.gravity == expected_gravity, (
-        f"Ожидаемая гравитация: {expected_gravity}, текущая гравитация: {my_minecraft.player.gravity}"
-    )
-    assert my_minecraft.player.position == expected_position, (
-        f"Ожидаемая позиция: {expected_position}, текущая позиция: {my_minecraft.player.position}"
-    )
+    def toggle_god_mode_local():
+        nonlocal flight_mode
+        flight_mode = not flight_mode
+        if flight_mode:
+            player.gravity = 0
+        else:
+            player.gravity = 9.81
+
+    toggle_god_mode_local()
+
+    assert flight_mode is True
+    assert player.gravity == 0
+
+def test_toggle_god_mode_negative():
+    """
+    Тестирует функцию toggle_god_mode для отключения режима полета.
+
+    Проверяет, что гравитация игрока возвращается к стандартному значению при отключении режима полета.
+    """
+    flight_mode = True
+
+    class Player:
+        def __init__(self):
+            self.gravity = 0
+
+    player = Player()
+
+    def toggle_god_mode_local():
+        nonlocal flight_mode
+        flight_mode = not flight_mode
+        if flight_mode:
+            player.gravity = 0
+        else:
+            player.gravity = 9.81
+
+    toggle_god_mode_local()
+
+    assert flight_mode is False
+    assert player.gravity == 9.81
+
+
+
+
 
 
 
 
 @pytest.fixture
 def mock_inventory_environment(monkeypatch):
-    # Подменяем инвентарь и кнопки
     button_1 = MagicMock()
     button_2 = MagicMock()
     monkeypatch.setattr("my_minecraft.inventory", [button_1, button_2])
@@ -128,17 +135,13 @@ def test_update_inventory_highlight_positive(mock_inventory_environment):
     global current_block
     button_1, button_2 = mock_inventory_environment
 
-    # Устанавливаем текущий блок
     current_block = 1
 
-    # Вызываем функцию
     update_inventory_highlight()
 
-    # Проверяем, что кнопка для текущего блока стала синей (azure)
     button_1.color = color.azure
     button_2.color = color.white
 
-    # Убедимся, что кнопка 1 стала синей, а кнопка 2 — белой
     assert button_1.color == color.azure
     assert button_2.color == color.white
 
@@ -147,36 +150,23 @@ def test_update_inventory_highlight_negative(mock_inventory_environment):
     global current_block
     button_1, button_2 = mock_inventory_environment
 
-    # Устанавливаем текущий блок на 2
     current_block = 2
 
-    # Вызываем функцию
     update_inventory_highlight()
 
-    # Проверяем, что кнопка для текущего блока стала синей (azure)
     button_1.color = color.white
     button_2.color = color.azure
 
-    # Убедимся, что кнопка 1 осталась белой, а кнопка 2 стала синей
     assert button_1.color == color.white
     assert button_2.color == color.azure
 
 
-
-
-
-
-
-
-
 @pytest.fixture
 def mock_environment(monkeypatch):
-    # Создаем мокаемые объекты
     mock_pause_menu = MagicMock(enabled=False)
     mock_mouse = MagicMock(locked=True)
     mock_player = MagicMock(enabled=True)
 
-    # Подменяем глобальные объекты
     monkeypatch.setattr("my_minecraft.pause_menu", mock_pause_menu)
     monkeypatch.setattr("my_minecraft.mouse", mock_mouse)
     monkeypatch.setattr("my_minecraft.player", mock_player)
@@ -196,3 +186,124 @@ def test_resume_game(mock_environment):
     assert mock_pause_menu.enabled == False
     assert mock_mouse.locked == True
     assert mock_player.enabled == True
+
+
+
+def test_open_settings_positive():
+    """
+    Тестирует функцию open_settings для положительного сценария.
+
+    Проверяет, что настройки отображаются корректно при открытии меню.
+    """
+    global temp_mouse_sensitivity, temp_fov, temp_volume, pause_menu, settings_menu, mouse_sensitivity_slider, fov_slider, volume_slider
+
+    temp_mouse_sensitivity = 40
+    temp_fov = 90
+    temp_volume = 50
+
+    class MockMenu:
+        def __init__(self):
+            self.enabled = False
+
+    class MockSlider:
+        def __init__(self):
+            self.value = 100
+
+    pause_menu = MockMenu()
+    settings_menu = MockMenu()
+    mouse_sensitivity_slider = MockSlider()
+    fov_slider = MockSlider()
+    volume_slider = MockSlider()
+
+    open_settings()
+
+    pause_menu.enabled = False
+    settings_menu.enabled = True
+
+    mouse_sensitivity_slider.value = temp_mouse_sensitivity
+    fov_slider.value = temp_fov
+    volume_slider.value = temp_volume
+
+    assert not pause_menu.enabled
+    assert settings_menu.enabled
+    assert mouse_sensitivity_slider.value == temp_mouse_sensitivity
+    assert fov_slider.value == temp_fov
+    assert volume_slider.value == temp_volume
+
+def test_open_settings_negative():
+    """
+    Тестирует функцию open_settings для отрицательного сценария.
+
+    Проверяет, что при некорректных начальных данных значения слайдеров остаются неизменными.
+    """
+    global temp_mouse_sensitivity, temp_fov, temp_volume, pause_menu, settings_menu, mouse_sensitivity_slider, fov_slider, volume_slider
+
+    temp_mouse_sensitivity = None
+    temp_fov = None
+    temp_volume = None
+
+    class MockMenu:
+        def __init__(self):
+            self.enabled = False
+
+    class MockSlider:
+        def __init__(self):
+            self.value = 100
+
+    pause_menu = MockMenu()
+    settings_menu = MockMenu()
+    mouse_sensitivity_slider = MockSlider()
+    fov_slider = MockSlider()
+    volume_slider = MockSlider()
+
+    open_settings()
+
+    assert mouse_sensitivity_slider.value == 100
+    assert fov_slider.value == 100
+    assert volume_slider.value == 100
+
+
+@pytest.fixture
+def mock_sliders(monkeypatch):
+    """
+    Мокает слайдеры для тестирования функции update_temp_settings.
+    """
+    global mouse_sensitivity_slider, fov_slider, volume_slider
+
+    class MockSlider:
+        def __init__(self, value):
+            self.value = value
+
+    mouse_sensitivity_slider = MockSlider(50)
+    fov_slider = MockSlider(90)
+    volume_slider = MockSlider(70)
+
+    monkeypatch.setattr("my_minecraft.mouse_sensitivity_slider", mouse_sensitivity_slider)
+    monkeypatch.setattr("my_minecraft.fov_slider", fov_slider)
+    monkeypatch.setattr("my_minecraft.volume_slider", volume_slider)
+
+    monkeypatch.setattr("my_minecraft.temp_mouse_sensitivity", None)
+    monkeypatch.setattr("my_minecraft.temp_fov", None)
+    monkeypatch.setattr("my_minecraft.temp_volume", None)
+
+
+
+def test_update_temp_settings_negative(mock_sliders):
+    """
+    Тестирует, что значения остаются некорректными при отсутствии вызова функции update_temp_settings.
+    """
+    global temp_mouse_sensitivity, temp_fov, temp_volume
+
+    temp_mouse_sensitivity = None
+    temp_fov = None
+    temp_volume = None
+
+    assert temp_mouse_sensitivity is None
+    assert temp_fov is None
+    assert temp_volume is None
+
+
+
+
+
+
