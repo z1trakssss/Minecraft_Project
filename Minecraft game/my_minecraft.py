@@ -310,7 +310,7 @@ def toggle_god_mode():
         player.gravity = 9.81
 
 
-def update(player, spawn_position, fall_threshold, flight_mode, held_keys):
+def update():
     """
     Обновляет состояние игрока на каждом кадре
 
@@ -328,6 +328,7 @@ def update(player, spawn_position, fall_threshold, flight_mode, held_keys):
     Возвращает:
         None
     """
+    global spawn_position
     if player.y < fall_threshold:
         player.position = spawn_position
 
