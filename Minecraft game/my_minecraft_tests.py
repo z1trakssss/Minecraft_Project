@@ -13,33 +13,6 @@ if not hasattr(builtins, 'loader'):
 from my_minecraft import update, pause_game, resume_game, update_inventory_highlight, open_settings
 
 
-
-def test_update_negative():
-    """
-    Тестирует функцию update для отрицательного сценария.
-
-    Проверяет, что игрок НЕ возвращается на spawn_position, если он выше fall_threshold.
-    """
-    spawn_position = Vec3(0, 5, 0)
-    fall_threshold = -25
-
-    class Player:
-        def __init__(self):
-            self.position = Vec3(0, 0, 0)
-
-        @property
-        def y(self):
-            return self.position.y
-
-    player = Player()
-
-    update()
-
-    assert player.position == Vec3(0, 0, 0)
-
-
-
-
 def test_toggle_god_mode_positive():
     """
     Тестирует функцию toggle_god_mode для включения режима полета.
@@ -93,11 +66,6 @@ def test_toggle_god_mode_negative():
 
     assert flight_mode is False
     assert player.gravity == 9.81
-
-
-
-
-
 
 
 
@@ -281,6 +249,28 @@ def test_update_temp_settings_negative(mock_sliders):
     assert temp_volume is None
 
 
+def test_update_negative():
+    """
+    Тестирует функцию update для отрицательного сценария.
+
+    Проверяет, что игрок НЕ возвращается на spawn_position, если он выше fall_threshold.
+    """
+    spawn_position = Vec3(0, 5, 0)
+    fall_threshold = -25
+
+    class Player:
+        def __init__(self):
+            self.position = Vec3(0, 0, 0)
+
+        @property
+        def y(self):
+            return self.position.y
+
+    player = Player()
+
+    update()
+
+    assert player.position == Vec3(0, 0, 0)
 
 
 
