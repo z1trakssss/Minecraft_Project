@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from ursina import application, color, Vec3
 
 import builtins
-    
+
 application.development_mode = True
 
 if not hasattr(builtins, 'loader'):
@@ -255,9 +255,6 @@ def test_update_negative():
 
     Проверяет, что игрок НЕ возвращается на spawn_position, если он выше fall_threshold.
     """
-    spawn_position = Vec3(0, 5, 0)
-    fall_threshold = -25
-
     class Player:
         def __init__(self):
             self.position = Vec3(0, 0, 0)

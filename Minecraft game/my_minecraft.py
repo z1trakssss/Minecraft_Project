@@ -238,7 +238,8 @@ def create_inventory():
         list[Button]: Список созданных кнопок инвентаря
     """
     inventory_buttons = []
-    block_textures = ['grass.png', 'wood_block.jpg', 'diamond_block.png', 'gold_block.png', 'lapis_block.png', 'stone_block.jpg', 'wood.jpg']
+    block_textures = ['grass.png', 'wood_block.jpg', 'diamond_block.png', 'gold_block.png',
+                      'lapis_block.png', 'stone_block.jpg', 'wood.jpg']
     for i, texture in enumerate(block_textures, start=1):
         button = Button(
             parent=camera.ui,
