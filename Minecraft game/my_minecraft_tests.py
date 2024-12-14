@@ -13,61 +13,6 @@ if not hasattr(builtins, 'loader'):
 from my_minecraft import update, pause_game, resume_game, update_inventory_highlight, open_settings
 
 
-def test_toggle_god_mode_positive():
-    """
-    Тестирует функцию toggle_god_mode для включения режима полета.
-
-    Проверяет, что гравитация игрока отключается при включении режима полета.
-    """
-    flight_mode = False
-
-    class Player:
-        def __init__(self):
-            self.gravity = 9.81
-
-    player = Player()
-
-    def toggle_god_mode_local():
-        nonlocal flight_mode
-        flight_mode = not flight_mode
-        if flight_mode:
-            player.gravity = 0
-        else:
-            player.gravity = 9.81
-
-    toggle_god_mode_local()
-
-    assert flight_mode is True
-    assert player.gravity == 0
-
-def test_toggle_god_mode_negative():
-    """
-    Тестирует функцию toggle_god_mode для отключения режима полета.
-
-    Проверяет, что гравитация игрока возвращается к стандартному значению при отключении режима полета.
-    """
-    flight_mode = True
-
-    class Player:
-        def __init__(self):
-            self.gravity = 0
-
-    player = Player()
-
-    def toggle_god_mode_local():
-        nonlocal flight_mode
-        flight_mode = not flight_mode
-        if flight_mode:
-            player.gravity = 0
-        else:
-            player.gravity = 9.81
-
-    toggle_god_mode_local()
-
-    assert flight_mode is False
-    assert player.gravity == 9.81
-
-
 
 @pytest.fixture
 def mock_inventory_environment(monkeypatch):
@@ -207,6 +152,63 @@ def test_open_settings_negative():
     assert mouse_sensitivity_slider.value == 100
     assert fov_slider.value == 100
     assert volume_slider.value == 100
+
+
+def test_toggle_god_mode_positive():
+    """
+    Тестирует функцию toggle_god_mode для включения режима полета.
+
+    Проверяет, что гравитация игрока отключается при включении режима полета.
+    """
+
+    flight_mode = False
+
+    class Player:
+        def __init__(self):
+            self.gravity = 9.81
+
+    player = Player()
+
+    def toggle_god_mode_local():
+        nonlocal flight_mode
+        flight_mode = not flight_mode
+        if flight_mode:
+            player.gravity = 0
+        else:
+            player.gravity = 9.81
+
+    toggle_god_mode_local()
+
+    assert flight_mode is True
+    assert player.gravity == 0
+
+def test_toggle_god_mode_negative():
+    """
+    Тестирует функцию toggle_god_mode для отключения режима полета.
+
+    Проверяет, что гравитация игрока возвращается к стандартному значению при отключении режима полета.
+    """
+    flight_mode = True
+
+    class Player:
+        def __init__(self):
+            self.gravity = 0
+
+    player = Player()
+
+    def toggle_god_mode_local():
+        nonlocal flight_mode
+        flight_mode = not flight_mode
+        if flight_mode:
+            player.gravity = 0
+        else:
+            player.gravity = 9.81
+
+    toggle_god_mode_local()
+
+    assert flight_mode is False
+    assert player.gravity == 9.81
+
 
 
 @pytest.fixture
