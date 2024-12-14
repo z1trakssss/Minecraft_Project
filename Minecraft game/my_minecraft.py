@@ -202,34 +202,14 @@ class Wood(Block):
         super().__init__(position)
         self.texture='wood.jpg'
 
-for x in range(27):
-    for z in range(27):
-        for y in range(1):
+for x in range(25):
+    for z in range(25):
+        for y in range(2):
             Block(position=(x, -y, z))
 
 
+
 current_block = 1
-
-
-def update_inventory_highlight():
-    """
-    Обновляет выделение текущего элемента в инвентаре
-
-    Функция проходит по всем кнопкам инвентаря и устанавливает их цвет
-    в зависимости от того, соответствует ли номер элемента текущему выбранному блоку
-
-    Переменные:
-        inventory (list[Button]): Список кнопок инвентаря, доступных для взаимодействия
-        current_block (int): Номер текущего выбранного блока
-
-    Возвращает:
-        None
-    """
-    for i, button in enumerate(inventory, start=1):
-        if i == current_block:
-            button.color = color.gray
-        else:
-            button.color = color.white
 
 
 hotbar_texture = 'hotbar.png'
@@ -267,24 +247,40 @@ def create_inventory():
             texture=texture,
             scale=(0.02, 0.02),
             position=(-0.2875 + i * 0.06, -0.44),
-            tooltip=Tooltip(f'Block {i}')
         )
         inventory_buttons.append(button)
 
     return inventory_buttons
 
+def update_inventory_highlight():
+    """
+    Обновляет выделение текущего элемента в инвентаре
+
+    Функция проходит по всем кнопкам инвентаря и устанавливает их цвет
+    в зависимости от того, соответствует ли номер элемента текущему выбранному блоку
+
+    Переменные:
+        inventory (list[Button]): Список кнопок инвентаря, доступных для взаимодействия
+        current_block (int): Номер текущего выбранного блока
+
+    Возвращает:
+        None
+    """
+    for i, button in enumerate(inventory, start=1):
+        if i == current_block:
+            button.color = color.gray
+        else:
+            button.color = color.white
 
 inventory = create_inventory()
 update_inventory_highlight()
 
+
+
 camera.fov = 90
-
-
 temp_mouse_sensitivity = player.mouse_sensitivity.x
 temp_fov = camera.fov
-#temp_volume = background_music.volume*100
 flight_mode = False
-
 
 
 def toggle_god_mode():
