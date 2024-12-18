@@ -12,6 +12,7 @@ background_music = Audio('audio/C418_Subwoofer_Lullaby.mp3',
 
 
 player = FirstPersonController()
+player.gravity = 9.81
 player.collider = 'box'
 spawn_position = Vec3(0,7,0)
 player.position = spawn_position
@@ -63,7 +64,7 @@ class Block(Button):
         super().__init__(
             parent=scene,
             position=position,
-            model='objects/real_block',
+            model='objects/real_block.obj',
             scale=0.5,
             texture='textures/grass.jpg',
             color=color.white,
@@ -211,7 +212,7 @@ class Stone(Block):
 
 for x in range(16):
     for z in range(16):
-        Stone(position=(x,0,z))
+        Block(position=(x,0,z))
 
 
 
@@ -227,6 +228,10 @@ hotbar = Entity(
 
 current_block = 1
 
+block_textures = ['textures/grass.jpg', 'textures/wood_block.jpg',
+                      'textures/diamond_block.png', 'textures/gold_block.png',
+                      'textures/lapis_block.png', 'textures/stone_block.jpg',
+                      'textures/wood.jpg']
 def create_inventory():
     """Создаёт элементы инвентаря с кнопками для каждого блока.
 
@@ -244,14 +249,10 @@ def create_inventory():
         None
     """
     inventory_buttons = []
-    block_textures = ['textures/grass.jpg', 'textures/wood_block.jpg',
-                      'textures/diamond_block.png', 'textures/gold_block.png',
-                      'textures/lapis_block.png', 'textures/stone_block.jpg',
-                      'textures/wood.jpg']
     for i, texture in enumerate(block_textures, start=1):
         button = Button(
             parent=camera.ui,
-            model='real_block',
+            model='objects/real_block.obj',
             texture=texture,
             scale=(0.02, 0.02),
             position=(-0.2875 + i * 0.06, -0.44)
@@ -310,6 +311,8 @@ def god_mode():
     flight_mode = not flight_mode
     if flight_mode:
         player.gravity = 0
+    else:
+        player.gravity = 9.81
 
 
 def update():
