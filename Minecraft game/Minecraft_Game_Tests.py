@@ -1,3 +1,5 @@
+import unittest
+
 import pytest
 from unittest.mock import MagicMock, patch
 from ursina import application, color, Vec3
@@ -12,24 +14,38 @@ if not hasattr(builtins, 'loader'):
     app = Ursina()
 
 from Minecraft_Game import god_mode, create_inventory, update_inventory_highlight, update, input
-from Minecraft_Game import player, flight_mode, block_textures
+from Minecraft_Game import block_textures
 
 
+class PlayerMock:
+    """Заглушка для объекта игрока."""
+    def __init__(self):
+        self.gravity = 9.81
+
+# Инициализация глобальных переменных для тестов
+class PlayerMock:
+    """Заглушка для объекта игрока."""
+    def __init__(self):
+        self.gravity = 9.81
+
+# Инициализация глобальных переменных для тестов
+def setup_module(module):
+    global flight_mode, player
+    flight_mode = False
+    player = PlayerMock()
+
+# Положительный тест для функции god_mode
 def test_god_mode_positive():
     global flight_mode, player
 
-    class PlayerMock:
-        def __init__(self):
-            self.gravity = 9.81
-
-    # Устанавливаем начальное состояние
+    # Проверяем начальное состояние
     flight_mode = False
-    player = PlayerMock()
+    player.gravity = 9.81
 
     # Вызываем функцию
     god_mode()
 
-    # Проверяем, что режим полета активировался
+    # Проверяем, что режим полёта включился и гравитация отключена
     assert flight_mode is True
     assert player.gravity == 0
 
@@ -37,27 +53,17 @@ def test_god_mode_positive():
 def test_god_mode_negative():
     global flight_mode, player
 
-    class PlayerMock:
-        def __init__(self):
-            self.gravity = 0
+    # Проверяем недопустимость вызова функции без объекта player
+    player = None
+    with pytest.raises(ValueError):
+        god_mode()
 
-    # Устанавливаем начальное состояние
-    flight_mode = True
-    player = PlayerMock()
-
-    # Вызываем функцию
-    god_mode()
-
-    # Проверяем, что режим полета отключился
-    assert flight_mode is False
-    assert player.gravity == 9.81
+if __name__ == '__main__':
+    pytest.main()
 
 
-
-
-
-def test_create_inventory_positive():
-    inventory = create_inventory()
+# def test_create_inventory_positive():
+#     inventory = create_inventory()
 
 
     # for i in range(len(block_textures)):
@@ -112,19 +118,19 @@ def test_create_inventory_positive():
 #         assert inventory_buttons == []
 
 
-# def test_update_inventory_highlight_positive():
-#     inventory = [MagicMock() for _ in range(7)]
-#     current_block = 1
-#
-#     with (patch("Minecraft_Game.inventory", inventory),
-#           patch("Minecraft_Game.current_block", current_block)):
-#         update_inventory_highlight()
-#
-#     for i, button in enumerate(inventory, start=1):
-#         if i == current_block:
-#             assert button.color == color.gray
-#         else:
-#             assert button.color == color.white
+def test_update_inventory_highlight_positive():
+    inventory = [MagicMock() for _ in range(7)]
+    current_block = 1
+
+    with (patch("Minecraft_Game.inventory", inventory),
+          patch("Minecraft_Game.current_block", current_block)):
+        update_inventory_highlight()
+
+    for i, button in enumerate(inventory, start=1):
+        if i == current_block:
+            assert button.color == color.gray
+        else:
+            assert button.color == color.white
 
 
 

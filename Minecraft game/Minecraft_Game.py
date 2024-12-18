@@ -208,8 +208,6 @@ class Stone(Block):
         self.texture = 'textures/stone_block.jpg'
 
 
-
-
 for x in range(16):
     for z in range(16):
         Block(position=(x,0,z))
@@ -308,11 +306,15 @@ def god_mode():
         None
     """
     global flight_mode
+    if 'player' not in globals():
+        raise ValueError()
+
     flight_mode = not flight_mode
     if flight_mode:
         player.gravity = 0
     else:
         player.gravity = 9.81
+
 
 
 def update():
@@ -338,9 +340,9 @@ def update():
 
     if flight_mode:
         if held_keys['space']:
-            player.position += Vec3(0,time.dt*10,0)
-        if held_keys['left_shift']:
-            player.position += Vec3(0,-time.dt*10,0)
+            player.position += Vec3(0, time.dt * 10, 0)
+        if held_keys['left shift']:
+            player.position += Vec3(0, -time.dt * 10, 0)
 
 def pause_game():
     """Приостанавливает игру и активирует меню паузы.
