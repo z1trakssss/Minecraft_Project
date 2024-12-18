@@ -1,6 +1,5 @@
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
-import pydoctor
 
 
 if __name__ == "__main__":
@@ -25,7 +24,7 @@ class MockObject:
         self.enabled = False
         self.locked = True
 
-background_music = Audio('C418_Subwoofer_Lullaby.mp3', loop=True, autoplay=True, volume=40)
+background_music = Audio('audio/C418_Subwoofer_Lullaby.mp3', loop=True, autoplay=True, volume=40)
 
 player = FirstPersonController()
 player.collider = 'box'
@@ -205,7 +204,7 @@ class Wood(Block):
 for x in range(16):
     for z in range(16):
         for y in range(2):
-            Block(position=(x, -y, z))
+            Stone(position=(x, -y, z))
 
 
 
