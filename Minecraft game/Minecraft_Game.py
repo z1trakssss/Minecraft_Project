@@ -412,14 +412,6 @@ def open_settings():
 def back_to_pause_menu():
     """Возвращает пользователя из меню настроек в меню паузы.
 
-    Функция применяет временные настройки (чувствительность мыши, угол обзора, громкость),
-    закрывает меню настроек и включает меню паузы.
-
-    Global Variables:
-        temp_mouse_sensitivity (float): Временное значение чувствительности мыши.
-        temp_fov (float): Временное значение угла обзора (Field of View).
-        temp_volume (float): Временное значение уровня громкости.
-
     Args:
         None
 
@@ -429,10 +421,6 @@ def back_to_pause_menu():
     Raises:
         None
     """
-    global temp_mouse_sensitivity, temp_fov, temp_volume
-    player.mouse_sensitivity = Vec2(temp_mouse_sensitivity, temp_mouse_sensitivity)
-    camera.fov = temp_fov
-    background_music.volume = temp_volume / 100
     settings_menu.enabled = False
     pause_menu.enabled = True
 
