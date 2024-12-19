@@ -9,6 +9,20 @@ from Minecraft_Game import update, pause_game, update_inventory_highlight, open_
 from Minecraft_Game import flight_mode, player, mouse, pause_menu, inventory, current_block, spawn_position
 
 
+
+def test_god_mode_positive():
+    with patch('Minecraft_Game.player.gravity', 9.81), patch('Minecraft_Game.flight_mode', False):
+        god_mode()
+
+        assert player.gravity == 0
+def test_god_mode_negative():
+    with patch('Minecraft_Game.player.gravity', 0), patch('Minecraft_Game.flight_mode', True):
+        god_mode()
+
+        assert player.gravity == 9.81
+
+
+
 def test_update_inventory_highlight_positive():
     with (patch("Minecraft_Game.inventory", inventory),
           patch("Minecraft_Game.current_block", current_block)):
@@ -79,23 +93,6 @@ def test_open_settings_negative():
             assert False
         except AttributeError:
             pass
-
-
-
-def test_god_mode_positive():
-    global flight_mode, player
-
-    with patch('Minecraft_Game.player.gravity', 9.81), patch('Minecraft_Game.flight_mode', False):
-        god_mode()
-
-        assert player.gravity == 0
-def test_god_mode_negative():
-    global flight_mode, player
-
-    with patch('Minecraft_Game.player.gravity', 0), patch('Minecraft_Game.flight_mode', True):
-        god_mode()
-
-        assert player.gravity == 9.81
 
 
 
