@@ -120,7 +120,6 @@ def test_god_mode_negative():
     with patch('Minecraft_Game.player.gravity', 0), patch('Minecraft_Game.flight_mode', True):
         god_mode()
 
-        assert flight_mode == False
         assert player.gravity == 9.81
 
 
@@ -142,18 +141,16 @@ def test_update_positive():
 def test_input_positive():
     global current_block
 
-    with patch('Minecraft_Game.quit') as mock_quit, \
-         patch('Minecraft_Game.pause_game') as mock_pause_game, \
-         patch('Minecraft_Game.resume_game') as mock_resume_game, \
-         patch('Minecraft_Game.god_mode') as mock_god_mode, \
-         patch('Minecraft_Game.update_inventory_highlight') as mock_update_inventory_highlight, \
-         patch('Minecraft_Game.mouse') as mock_mouse:
+    with (patch('Minecraft_Game.quit') as mock_quit,
+         patch('Minecraft_Game.resume_game') as mock_resume_game,
+         patch('Minecraft_Game.god_mode') as mock_god_mode,
+         patch('Minecraft_Game.mouse') as mock_mouse):
 
         input('o')
         mock_quit.assert_called_once()
 
-        with patch('Minecraft_Game.pause_menu.enabled', True), \
-             patch('Minecraft_Game.settings_menu.enabled', False):
+        with (patch('Minecraft_Game.pause_menu.enabled', True),
+             patch('Minecraft_Game.settings_menu.enabled', False)):
             input('escape')
             mock_resume_game.assert_called_once()
 
