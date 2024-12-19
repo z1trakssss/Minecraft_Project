@@ -14,7 +14,7 @@ background_music = Audio('audio/C418_Subwoofer_Lullaby.mp3',
 player = FirstPersonController()
 player.gravity = 9.81
 player.collider = 'box'
-spawn_position = Vec3(0,7,0)
+spawn_position = Vec3(0,10,0)
 player.position = spawn_position
 fall_position = -25
 player.mouse_sensitivity = Vec2(40,40)
@@ -306,9 +306,6 @@ def god_mode():
         None
     """
     global flight_mode
-    if 'player' not in globals():
-        raise ValueError()
-
     flight_mode = not flight_mode
     if flight_mode:
         player.gravity = 0
