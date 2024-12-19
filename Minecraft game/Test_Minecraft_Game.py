@@ -9,7 +9,6 @@ from Minecraft_Game import update, pause_game, update_inventory_highlight, open_
 from Minecraft_Game import flight_mode, player, mouse, pause_menu, inventory, current_block, spawn_position
 
 
-
 def test_update_inventory_highlight_positive():
     with (patch("Minecraft_Game.inventory", inventory),
           patch("Minecraft_Game.current_block", current_block)):
@@ -144,12 +143,12 @@ def test_input_positive():
 def test_input_negative():
     global current_block
 
-    with patch('Minecraft_Game.quit') as mock_quit, \
-         patch('Minecraft_Game.pause_game') as mock_pause_game, \
-         patch('Minecraft_Game.resume_game') as mock_resume_game, \
-         patch('Minecraft_Game.god_mode') as mock_god_mode, \
-         patch('Minecraft_Game.update_inventory_highlight') as mock_update_inventory_highlight, \
-         patch('Minecraft_Game.mouse') as mock_mouse:
+    with (patch('Minecraft_Game.quit') as mock_quit,
+         patch('Minecraft_Game.pause_game') as mock_pause_game,
+         patch('Minecraft_Game.resume_game') as mock_resume_game,
+         patch('Minecraft_Game.god_mode') as mock_god_mode,
+         patch('Minecraft_Game.update_inventory_highlight') as mock_update_inventory_highlight,
+         patch('Minecraft_Game.mouse') as mock_mouse):
 
         input('invalid_key')
         mock_quit.assert_not_called()
