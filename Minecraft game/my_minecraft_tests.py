@@ -68,11 +68,6 @@ def test_pause_game_negative():
 
 
 def test_open_settings_positive():
-    """
-    Положительный тест для функции open_settings.
-    Проверяет, что меню паузы отключается, меню настроек включается,
-    а значения слайдеров устанавливаются правильно.
-    """
     with (patch('Minecraft_Game.pause_menu') as mock_pause_menu,
             patch('Minecraft_Game.settings_menu') as mock_settings_menu,
             patch('Minecraft_Game.mouse_sensitivity_slider') as mock_mouse_slider,
@@ -93,10 +88,6 @@ def test_open_settings_positive():
 
 
 def test_open_settings_negative():
-    """
-    Отрицательный тест для функции open_settings.
-    Проверяет, что функция вызывает ошибку, если слайдеры не инициализированы.
-    """
     with (patch('Minecraft_Game.pause_menu') as mock_pause_menu,
             patch('Minecraft_Game.settings_menu') as mock_settings_menu,
             patch.dict('Minecraft_Game.__dict__', {
@@ -110,7 +101,7 @@ def test_open_settings_negative():
 
         try:
             open_settings()
-            assert False, "Ожидалось исключение AttributeError из-за отсутствия слайдеров"
+            assert False
         except AttributeError:
             pass
 
@@ -149,10 +140,6 @@ def test_update_positive():
 
 
 def test_input_positive():
-    """
-    Положительный тест для функции input.
-    Проверяет, что при нажатии клавиш выполняются ожидаемые действия.
-    """
     global current_block
 
     with patch('Minecraft_Game.quit') as mock_quit, \
@@ -162,21 +149,17 @@ def test_input_positive():
          patch('Minecraft_Game.update_inventory_highlight') as mock_update_inventory_highlight, \
          patch('Minecraft_Game.mouse') as mock_mouse:
 
-        # Тестируем клавишу 'o'
         input('o')
         mock_quit.assert_called_once()
 
-        # Тестируем клавишу 'escape' с активным pause_menu
         with patch('Minecraft_Game.pause_menu.enabled', True), \
              patch('Minecraft_Game.settings_menu.enabled', False):
             input('escape')
             mock_resume_game.assert_called_once()
 
-        # Тестируем клавишу 'g'
         input('g')
         mock_god_mode.assert_called_once()
 
-        # Тестируем добавление блока
         current_block = 1
         mock_mouse.hovered_entity = MagicMock()
         mock_mouse.hovered_entity.position = MagicMock()
@@ -187,10 +170,6 @@ def test_input_positive():
 
 
 def test_input_negative():
-    """
-    Отрицательный тест для функции input.
-    Проверяет, что функция корректно обрабатывает несуществующие действия или недопустимые ключи.
-    """
     global current_block
 
     with patch('Minecraft_Game.quit') as mock_quit, \
@@ -200,7 +179,6 @@ def test_input_negative():
          patch('Minecraft_Game.update_inventory_highlight') as mock_update_inventory_highlight, \
          patch('Minecraft_Game.mouse') as mock_mouse:
 
-        # Тестируем несуществующую клавишу
         input('invalid_key')
         mock_quit.assert_not_called()
         mock_pause_game.assert_not_called()
@@ -208,7 +186,6 @@ def test_input_negative():
         mock_god_mode.assert_not_called()
         mock_update_inventory_highlight.assert_not_called()
 
-        # Тестируем действие без hovered_entity
         current_block = 1
         mock_mouse.hovered_entity = None
         with patch('Minecraft_Game.Grass') as mock_grass:
