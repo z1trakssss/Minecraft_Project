@@ -6,7 +6,7 @@ if __name__ != '__main__':
     app = Ursina()
 
 from Minecraft_Game import update, pause_game, update_inventory_highlight, open_settings, god_mode, input
-from Minecraft_Game import flight_mode, player, mouse, pause_menu, inventory, current_block, spawn_position
+from Minecraft_Game import player, pause_menu, inventory, current_block
 
 
 
