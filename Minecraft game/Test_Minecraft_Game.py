@@ -124,11 +124,10 @@ def test_god_mode_negative():
 
 
 
-
 def test_update_positive():
-    with patch('Minecraft_Game.player', new_callable=MagicMock) as mock_player, \
-         patch('Minecraft_Game.spawn_position', new_callable=MagicMock) as mock_spawn_position, \
-         patch('Minecraft_Game.fall_position', -25):
+    with (patch('Minecraft_Game.player') as mock_player,
+         patch('Minecraft_Game.spawn_position') as mock_spawn_position,
+         patch('Minecraft_Game.fall_position', -25)):
 
         mock_player.y = -30
 
