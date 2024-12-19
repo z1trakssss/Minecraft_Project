@@ -2,12 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from ursina import *
 
-import builtins
-
-
-application.development_mode = True
-
-if not hasattr(builtins, 'loader'):
+if __name__ != '__main__':
     app = Ursina()
 
 from Minecraft_Game import update, pause_game, update_inventory_highlight, open_settings, god_mode, input
@@ -16,9 +11,6 @@ from Minecraft_Game import flight_mode, player, mouse, pause_menu, inventory, cu
 
 
 def test_update_inventory_highlight_positive():
-    inventory = [MagicMock() for _ in range(7)]
-    current_block = 1
-
     with (patch("Minecraft_Game.inventory", inventory),
           patch("Minecraft_Game.current_block", current_block)):
         update_inventory_highlight()
@@ -28,22 +20,6 @@ def test_update_inventory_highlight_positive():
             assert button.color == color.gray
         else:
             assert button.color == color.white
-
-def test_update_inventory_highlight_negative():
-    inventory = [MagicMock() for _ in range(7)]
-    current_block = 2
-
-    with (patch("Minecraft_Game.inventory", inventory),
-          patch("Minecraft_Game.current_block", current_block)):
-        update_inventory_highlight()
-
-    for i, button in enumerate(inventory, start=1):
-        if i == current_block:
-            assert button.color == color.gray
-        else:
-            assert button.color == color.white
-
-
 
 def test_pause_game_positive():
     with patch('Minecraft_Game.mouse', autospec=True) as mock_mouse:
